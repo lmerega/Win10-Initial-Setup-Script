@@ -8,6 +8,11 @@
 ### Require administrator privileges ###
 RequireAdmin
 
+DeviceName
+AcceptAll
+SystemRestore
+UpdatesOnDemand
+
 ### Privacy Tweaks ###
 DisableTelemetry                # EnableTelemetry
 DisableCortana                  # EnableCortana
