@@ -5,6 +5,101 @@
 # Source: https://github.com/Disassembler0/Win10-Initial-Setup-Script
 ##########
 
+Function DeviceName {
+	Write-Output "SCRIPT PER OTTIMIZZARE E VELOCIZZARE WINDOWS 10 (v3)"
+	Write-Output "----------------------------------------------------"
+	Write-Output "Prima di utilizzarlo, verificare di averne ben compreso il funzionamento"
+	Write-Output "e assicurarsi di avere a disposizione un backup completo e aggiornato"
+	Write-Output "del sistema Windows 10."
+	Write-Output "Lo script e' al momento compatibile con Windows 10 versione 1909 e precedenti."
+	Write-Output "----------------------------------------------------"
+	Write-Output ""
+	$Readhost = Read-Host "- Assegnare un nome al dispositivo? " 
+    Switch ($ReadHost) 
+     { 
+	   S {continue}
+       N {return} 
+       Default {continue} 
+     }
+	$Readhost = Read-Host "- Impostare un nome per il dispositivo: " 
+	Rename-Computer -NewName $ReadHost
+}
+
+Function AcceptAll {
+	$Readhost = Read-Host "- ATTENZIONE: ACCETTARE TUTTE LE MODIFICHE PREDEFINITE (non verranno poste ulteriori domande)? " 
+    Switch ($ReadHost) 
+     { 
+	   S {return}
+       N {continue} 
+       Default {return} 
+     }
+	 $global:accept="1"
+}
+
+Function SystemRestore {
+	If ($global:accept) {
+	$Readhost = Read-Host "- Attivare Ripristino configurazione di sistema sull'unita' C:? " 
+    Switch ($ReadHost) 
+     { 
+	   S {continue}
+       N {return} 
+       Default {continue} 
+     }
+	}
+	Write-Output "Attivazione Ripristino configurazione di sistema sull'unita' C:..."
+	Enable-ComputerRestore -drive "C:\"
+	vssadmin resize shadowstorage /on=c: /for=c: /maxsize=10%
+}
+
+Function SystemRestoreDisable {
+	If ($global:accept) {
+	$Readhost = Read-Host "- Disattivare Ripristino configurazione di sistema sull'unita' C:? " 
+    Switch ($ReadHost) 
+     { 
+	   S {continue}
+       N {return} 
+       Default {continue} 
+     }
+	}
+	Write-Output "Disattivazione Ripristino configurazione di sistema sull'unita' C:..."
+	Disable-ComputerRestore -drive "C:\"
+}
+
+Function UpdatesOnDemand {
+	If ($global:accept) {
+	$Readhost = Read-Host "- Attivare il download e l'installlazione degli aggiornamenti solo su richiesta? " 
+    Switch ($ReadHost) 
+     { 
+	   S {continue}
+       N {return} 
+       Default {continue} 
+     }
+	}
+	Write-Output "Attivazione download e installlazione degli aggiornamenti su richiesta..."
+	If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU")) {
+		New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Force | Out-Null
+	}	
+	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name "NoAutoUpdate" -Type DWord -Value 0
+	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name "AUOptions" -Type DWord -Value 2
+	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name "NoAutoRebootWithLoggedOnUsers" -Type DWord -Value 1
+}
+
+Function NoUpdatesOnDemand {
+	If ($global:accept) {
+	$Readhost = Read-Host "- Disattivare il download e l'installlazione degli aggiornamenti su richiesta? " 
+    Switch ($ReadHost) 
+     { 
+	   S {continue}
+       N {return} 
+       Default {continue} 
+     }
+	 }
+	 Write-Output "Disattivazione download e installlazione degli aggiornamenti su richiesta..."
+	 Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name "NoAutoUpdate" -ErrorAction SilentlyContinue
+	 Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name "AUOptions" -ErrorAction SilentlyContinue
+	 Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name "NoAutoRebootWithLoggedOnUsers" -ErrorAction SilentlyContinue
+}
+
 ##########
 #region Privacy Tweaks
 ##########
